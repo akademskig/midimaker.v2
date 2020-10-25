@@ -49,7 +49,11 @@ export interface PlayEvent  {
   time: number;
   duration: number;
   midiNumber: number;
-};
+}
+
 export interface PlayChannelEvent extends PlayEvent {
   instrumentName: string
+}
+export interface ChannelRenderEvent extends PlayEvent{
+  color?: string
 }

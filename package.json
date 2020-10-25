@@ -13,6 +13,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/styled-components": "^5.1.4",
     "eslint-config-recommended": "^4.1.0",
+    "lodash": "^4.17.20",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-piano": "^3.1.3",

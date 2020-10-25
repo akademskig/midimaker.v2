@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useRef } from 'react'
+import { useCallback, useContext, useRef } from 'react'
 import { uniq, flatMap } from 'lodash'
 import { SoundfontProviderContext } from '../../providers/SoundfontProvider'
 import {
   PlayEvent,
-  SoundfontProviderContextValue,
   Channel,
   PlayChannelEvent
 } from '../../types/SoundFontProvider.types'
+import { WindowExtended } from '../../globals'
 
 
 
@@ -14,13 +14,13 @@ interface IAudioNode {
   play: () => unknown,
   stop: () => unknown
 }
-s
+
 interface IActiveAudioNodes {
   [string: string]: IAudioNode | null
 }
 
-const windowE: WindowExtended = window
-const audioContext = new (windowE && (windowE.AudioContext || windowE.webkitAudioContext))()
+const windowExtended: WindowExtended = window
+const audioContext = new (windowExtended && (windowExtended.AudioContext || windowExtended.webkitAudioContext))()
 
 interface IAudioPlayer {
   playNote: (event: PlayEvent) => void;
@@ -56,22 +56,15 @@ function AudioPlayer(): IAudioPlayer {
   const stopNote = useCallback((midiNumber) => {
     const { current: audioNodes } = activeAudioNodes
     return audioContext.resume().then(() => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
       audioNodes && audioNodes[midiNumber] && audioNodes[midiNumber].stop()
       activeAudioNodes.current = { ...audioNodes, [midiNumber]: null }
     })
   }, [])
 
-  // const playNote = useCallback(
-  //   (midiNumber, duration, instrumentName) => {
-  //     startNote(midiNumber, instrumentName)
-  //     window.setTimeout(() => {
-  //       stopNote(midiNumber)
-  //     }, duration * 1000)
-  //   },
-  //   [startNote, stopNote]
-  // )
   const playNote = useCallback((lastEvent: PlayEvent, instrumentName?: string) => {
+    console.log(lastEvent)
     startNote(lastEvent.midiNumber, instrumentName)
     setTimeout(() => {
       stopNote(lastEvent.midiNumber)
@@ -80,13 +73,13 @@ function AudioPlayer(): IAudioPlayer {
 
   const playAll = useCallback(
     async (channels: Array<Channel>) => {
-      let joinedEvents: any = []
+      let joinedEvents: PlayChannelEvent[] = []
       if (channels.length > 0) {
-        joinedEvents = channels.map((channel: Channel) => {
+        joinedEvents = flatMap(channels.map((channel: Channel) => {
           return channel.notes.map((note) => {
             return { ...note, ...{ instrumentName: channel.instrumentName } }
           })
-        })
+        }))
       }
       const startAndEndTimes = uniq(
         flatMap(joinedEvents, (event) => [
@@ -137,7 +130,7 @@ function AudioPlayer(): IAudioPlayer {
   //     this.instruments[c.instrumentName] = await this.loadChannelInstrument(c.instrumentName)
   //   })
   // }
-  
+
   return {
     playAll,
     stopPlayAll,

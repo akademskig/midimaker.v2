@@ -1,0 +1,10 @@
+export const RECT_WIDTH = 20
+export const RECT_SPACE = 2
+export const RECT_COLOR = '#000'
+export const RECT_TIME = 5
+export const BAR_COLOR = '#d13a1f'
+export const RECORDING_BAR_COLOR = '#a0cf33'
+export const BAR_WIDTH = 4
+export const REC_TIME = 180
+export const CANVAS_HEIGHT = 700
+export const CANVAS_BACKGROUND = '#e2e2e2'

@@ -1,10 +1,14 @@
-import React from 'react'
+import { useContext } from 'react'
+import {SoundfontProviderContext} from '../providers/SoundfontProvider'
 import NotesGridRenderer from './NotesGrid/NotesGridRenderer'
 import { MidiNumbers } from 'react-piano'
+import { Note } from '../types/SoundFontProvider.types'
 import { TRecordingGrid } from './NotesGrid/NotesGrid.types'
-const NotesGrid = () => {
-    // const { currentInstrument } = ctx 
-   const noteRange = {
+
+function AudioController(props){
+
+    const channels = []
+    const noteRange = {
         first: 43,
         last: 67,
     }
@@ -46,13 +50,10 @@ const NotesGrid = () => {
           console.log(recording)
         }
     }
-    return(
-        <div>
-        <NotesGridRenderer
-        {...mockProps}
-        />
-        </div>
-    )
+
+    return ({
+
+    })
 }
 
-export default NotesGrid
+export default AudioController
