@@ -22,13 +22,18 @@ export interface ICachedInstruments {
 }
 
 export type SoundfontProviderContextValue = {
-  currentInstrument: Player | null;
+  currentInstrument: TCurrentInstrument | null;
   loadInstrument: (instrumentName: string) => Promise<unknown>;
   loading: boolean;
   cachedInstruments: ICachedInstruments;
 };
 
-export type Channel = {
+export type TCurrentInstrument = {
+  name: string,
+  player: Player | null
+}
+
+export type TChannel = {
   instrumentName: string;
   notes: Array<PlayEvent>;
   color?: string;

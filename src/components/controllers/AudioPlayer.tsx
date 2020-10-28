@@ -1,11 +1,11 @@
 import { useCallback, useContext, useRef } from 'react'
 import { uniq, flatMap } from 'lodash'
-import { SoundfontProviderContext } from '../../providers/SoundfontProvider'
+import { SoundfontProviderContext } from '../../providers/SoundfontProvider/SoundfontProvider'
 import {
   PlayEvent,
-  Channel,
+  TChannel,
   PlayChannelEvent
-} from '../../types/SoundFontProvider.types'
+} from '../../providers/SoundfontProvider/SoundFontProvider.types'
 import { WindowExtended } from '../../globals'
 
 
@@ -26,7 +26,7 @@ interface IAudioPlayer {
   playNote: (event: PlayEvent) => void;
   stopNote: (midiNumber: number) => void;
   startNote: (midiNumber: number) => void;
-  playAll: (channels: Channel[]) => void
+  playAll: (channels: TChannel[]) => void
   stopPlayAll: () => void,
   stopAllNotes: () => void
 }
@@ -41,7 +41,7 @@ function AudioPlayer(): IAudioPlayer {
       return audioContext.resume().then(() => {
         const audioNode = instrumentName
           ? cachedInstruments?.[instrumentName]?.play(midiNumber)
-          : currentInstrument?.play(midiNumber)
+          : currentInstrument?.player?.play(midiNumber)
         if (audioNode) {
           activeAudioNodes.current = {
             ...activeAudioNodes.current,
@@ -72,10 +72,10 @@ function AudioPlayer(): IAudioPlayer {
   }, [startNote, stopNote])
 
   const playAll = useCallback(
-    async (channels: Array<Channel>) => {
+    async (channels: Array<TChannel>) => {
       let joinedEvents: PlayChannelEvent[] = []
       if (channels.length > 0) {
-        joinedEvents = flatMap(channels.map((channel: Channel) => {
+        joinedEvents = flatMap(channels.map((channel: TChannel) => {
           return channel.notes.map((note) => {
             return { ...note, ...{ instrumentName: channel.instrumentName } }
           })

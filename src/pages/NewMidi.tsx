@@ -1,12 +1,12 @@
 import React from 'react'
-import SoundfontProvider from '../providers/SoundfontProvider'
-import NotesGrid from '../components/NotesGrid'
+import SoundfontProvider from '../providers/SoundfontProvider/SoundfontProvider'
+import NotesGrid from '../components/NotesGrid/NotesGrid'
 
 const NewMidi = () => {
 
     return (
         <SoundfontProvider>
-           <NotesGrid></NotesGrid>
+           <NotesGrid/>
         </SoundfontProvider>
     )
 }

@@ -8,3 +8,4 @@ export const BAR_WIDTH = 4
 export const REC_TIME = 180
 export const CANVAS_HEIGHT = 700
 export const CANVAS_BACKGROUND = '#e2e2e2'
+export const MIDI_OFFSET = 42
