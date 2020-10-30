@@ -6,10 +6,15 @@ import { useNotesGridController } from './components/NotesGridController'
 import { useNotesGridRenderer } from './components/NotesGridRenderer'
 import { CANVAS_BACKGROUND, CANVAS_HEIGHT } from './constants'
 import { SoundfontProviderContextValue } from '../../providers/SoundfontProvider/SoundFontProvider.types'
+import styled from 'styled-components'
 
 const canvasStyle = {
     background: 'rgba(4,32,55,0.7)',
 }
+
+const SNotesGrid = styled.div`
+    cursor: pointer;
+`
 
 function NotesGrid(): JSX.Element {
     const soundfontCtx = useContext<SoundfontProviderContextValue>(
@@ -21,14 +26,14 @@ function NotesGrid(): JSX.Element {
 
     const createCanvas = useCallback(
         () =>
-            <div ref={canvasBoxRef} style={{ height: CANVAS_HEIGHT, background: CANVAS_BACKGROUND }}>
+            <SNotesGrid ref={canvasBoxRef} style={{ height: CANVAS_HEIGHT, background: CANVAS_BACKGROUND }}>
                 <canvas
                     id="canvas"
                     ref={canvasRef}
                     style={canvasStyle}
                     onClick={toggleNote}
                 />
-            </div>
+            </SNotesGrid>
         ,
         [canvasBoxRef, canvasRef, toggleNote]
     )

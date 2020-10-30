@@ -1,9 +1,8 @@
-import React, { createContext, useCallback, useState, useEffect, useMemo } from 'react'
+import React, { createContext, useCallback, useState, useEffect, useMemo, ReactElement } from 'react'
 import Soundfont from 'soundfont-player'
 import appConfig from '../../config'
 import {
   SoundfontProviderContextValue,
-  SoundfontProviderProps,
   SoundfontFormat,
   SoundfontType,
   ICachedInstruments,
@@ -14,6 +13,13 @@ import { audioContext } from '../../globals'
 
 
 const hostname = appConfig.soundfont.hostname
+
+export type SoundfontProviderProps = {
+  instrumentName: string;
+  format: SoundfontFormat;
+  soundfont: SoundfontType;
+  children: ReactElement;
+};
 
 const initialCtxValue = {
   currentInstrument: {

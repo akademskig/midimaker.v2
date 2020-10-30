@@ -1,8 +1,9 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { Children, createContext, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MidiNumbers } from 'react-piano'
 import { range } from 'lodash'
 import { Note, TChannel } from '../SoundfontProvider/SoundFontProvider.types'
-import { TRecordingGrid } from './AudioStateProvider.types'
+import { TNoteRange, TRecordingGrid } from './AudioStateProvider.types'
+import NotesGrid from '../../components/NotesGrid/NotesGrid'
 
 const initialNoteRange = {
     first: 43,
@@ -10,21 +11,33 @@ const initialNoteRange = {
 }
 const initialNoteDuration = 0.1
 const initialChannelColor = '#ff6600'
-const initailGridRecording: TRecordingGrid = {
+const initailGridNotes: TRecordingGrid = {
     events: [],
     currentTime: 0
 }
+interface IControllerState {
+    PLAYING: boolean
+    RECORDING:boolean,
+    RECORDING_RESET: boolean
+}
 
-interface IAudioStateProvider {
-    setGridRecording: React.Dispatch<React.SetStateAction<TRecordingGrid>>
-    gridRecording: TRecordingGrid
+interface IAudioStateProviderContext {
     currentChannel: TChannel | null;
     setCurrentChannel: React.Dispatch<React.SetStateAction<TChannel | null>>
     setChannelColor: React.Dispatch<React.SetStateAction<string>>
     channels: TChannel[];
+    setChannels: React.Dispatch<React.SetStateAction<TChannel[]>>
     notes: Note[];
     noteDuration: number,
     channelColor: string,
+    controllerState: IControllerState,
+    setControllerState: React.Dispatch<React.SetStateAction<IControllerState>>
+    gridNotes: TRecordingGrid,
+    setGridNotes: React.Dispatch<React.SetStateAction<TRecordingGrid>>
+}
+
+interface IAudioStateProviderProps { 
+    children: ReactElement
 }
 const initialChannel = {
     instrumentName: 'acoustic_grand_piano',
@@ -32,67 +45,68 @@ const initialChannel = {
     color: 'yellow',
     duration: 0
 }
-const AudioStateProvider = (): IAudioStateProvider => {
+const initialControllerState = {
+    PLAYING: false,
+    RECORDING: false,
+    RECORDING_RESET: false
+}
+
+const initialCtxValue = {
+        currentChannel: null,
+        setCurrentChannel: ((value: React.SetStateAction<TChannel | null>) => (value: TChannel) => value),
+        channelColor: '#ff6600',
+        setChannelColor: ((value: React.SetStateAction<string>) => (value: string) => value),
+        noteDuration: 0.2,
+        channels: [],
+        setChannels: ((value: React.SetStateAction<TChannel[] | []>) => (value: TChannel[]) => value),
+        notes: [],
+        controllerState: initialControllerState,
+        setControllerState: ((value: React.SetStateAction<IControllerState>) => (value: IControllerState) => value),
+        gridNotes: initailGridNotes,
+        setGridNotes: ((value: React.SetStateAction<TRecordingGrid>) => (value: TRecordingGrid) => value),
+}
+
+
+export const AudioStateProviderContext = createContext<IAudioStateProviderContext>(initialCtxValue)
+const AudioStateProvider = ({ children }: IAudioStateProviderProps): JSX.Element => {
     // const { currentInstrument } = ctx 
 
-    const [noteRange, setNoteRange] = useState(initialNoteRange)
-    const [noteDuration, setNoteDuration] = useState(initialNoteDuration)
-    const [channelColor, setChannelColor] = useState(initialChannelColor)
-    const [gridRecording, setGridRecording] = useState(initailGridRecording)
-    console.log(gridRecording)
+    const [noteRange, setNoteRange] = useState<TNoteRange>(initialNoteRange)
+    const [noteDuration, setNoteDuration] = useState<number>(initialNoteDuration)
+    const [channelColor, setChannelColor] = useState<string>(initialChannelColor)
+    const [gridRecording, setGridRecording] = useState<TRecordingGrid>(initailGridNotes)
     const [currentChannel, setCurrentChannel] = useState<TChannel | null>(initialChannel)
+    const [controllerState, setControllerState] = useState<IControllerState>(initialControllerState)
 
-
-    const channels = useRef<TChannel[]>([])
+    const [channels, setChannels] = useState<TChannel[]>([])
+    const [gridNotes, setGridNotes] = useState(initailGridNotes)
+    console.log(channels, 'channels')
 
     const notes = useMemo(() =>
         range(noteRange.first, noteRange.last)
             .map((idx: number) => MidiNumbers.getAttributes(idx))
             .reverse(), [noteRange.first, noteRange.last])
 
-    // const mockProps = {
-    //     channels: [channel],
-    //     channelColor: '#f2046d',
-    //     currentChannel: channel,
-    //     loading: false,
-    //     controller: {
-    //         playing: false,
-    //         recording: false,
-    //         resetRecording: true
-    //     },
-    //     setController: () => {},
-    //     canvasContainer: {},
-    //     notes: notes,
-    //     midiOffset: 43,
-    //     noteDuration: 0.1,
-    //     recording: {
-    //         events: [],
-    //         currentTime: 0
-    //     },
-    //     absTime: 0,
-    //     recordingGrid: {
-    //         currentTime: 0,
-    //         events: []
-    //     },
-    //     setRecordingGrid: (recording: TRecordingGrid) => {
-    //       console.log(recording)
-    //     }
-    // }
-    return ({
-        setGridRecording,
+    const ctxValue = useMemo(() => ({
         currentChannel,
         setCurrentChannel,
         channelColor,
         setChannelColor,
         noteDuration,
-        gridRecording,
-        channels: channels.current,
-        notes
-    })
+        channels,
+        setChannels,
+        notes,
+        controllerState,
+        setControllerState,
+        gridNotes,
+        setGridNotes
+    }), [channelColor, channels, controllerState, currentChannel, gridNotes, noteDuration, notes])
+
+    return (
+        <AudioStateProviderContext.Provider value={ctxValue}>
+            { children }
+        </AudioStateProviderContext.Provider>
+    )
 }
 
 export default AudioStateProvider
-
-export function useAudioStateProvider(): IAudioStateProvider {
-    return AudioStateProvider()
-}

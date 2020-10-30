@@ -6,3 +6,8 @@ export type TRecordingGrid = {
     events: PlayEvent [];
     currentTime: number;
 }
+
+export type TNoteRange = {
+    first: number,
+    last: number
+}

@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
   RefObject,
+  useContext,
 } from 'react'
 
 import { flatMap } from 'lodash'
@@ -13,8 +14,7 @@ import { RECT_WIDTH, RECT_SPACE, RECT_TIME, RECORDING_BAR_COLOR, BAR_COLOR,
   BAR_WIDTH, REC_TIME, RECT_COLOR, CANVAS_BACKGROUND, MIDI_OFFSET } from '../constants'
 import { ICoordinates } from '../NotesGrid.types'
 import { ChannelRenderEvent, Note, PlayEvent, TChannel } from '../../../providers/SoundfontProvider/SoundFontProvider.types'
-import { useAudioStateProvider } from '../../../providers/AudioStateProvider/AudioStateProvider'
-import { useAudioController } from '../../controllers/AudioController'
+import { AudioStateProviderContext } from '../../../providers/AudioStateProvider/AudioStateProvider'
 
 
 let rectangleHeight = 30
@@ -56,11 +56,6 @@ let canvasBoxElement:HTMLDivElement
 let coordinatesMapLocal: ICoordinates[]
 function NotesGridRenderer(): INotesGridRenderer {
 
-  const {
-    controllerState,
-    setControllerState,
-  } = useAudioController()
-
   const [recordingTimesRemained, setRecordingTimesRemained] =
     useState<Array<number>>([])
     const [canvasTimeUnit, setCanvasTimeUnit] = useState(RECT_TIME)
@@ -77,7 +72,7 @@ function NotesGridRenderer(): INotesGridRenderer {
   const canvasSettings = useRef<ICanvasSettings>({
     notesListWidth: 0,
   })
-  const { channels, noteDuration, channelColor, notes, gridRecording } = useAudioStateProvider()
+  const { channels, noteDuration, channelColor, notes, gridNotes, controllerState, setControllerState } = useContext(AudioStateProviderContext)
   
   useEffect(()=>{
     if(canvasBoxRef.current){
@@ -109,6 +104,8 @@ function NotesGridRenderer(): INotesGridRenderer {
     if (rectangle.x >= canvasBoxElement.getBoundingClientRect().top) {
       canvasBoxElement.scroll(rectangle.x + 100, rectangle.y)
     }
+    console.log(rectangle, 'rectabnge')
+
 
     const note = {
       midiNumber: rectangle.midiNumber,
@@ -164,6 +161,7 @@ function NotesGridRenderer(): INotesGridRenderer {
 
   const renerEmptyCanvas = useCallback((canvasCtx, xLength) => {
     const { notesListWidth } = canvasSettings.current
+    console.log(notesListWidth)
     coordinatesMapLocal = []
     // draw notes to canvas
     const calculateFontYPosition = (i: number) => {
@@ -222,21 +220,27 @@ function NotesGridRenderer(): INotesGridRenderer {
     }
   }, [canvasTimeUnit, controllerState.PLAYING, controllerState.RECORDING])
 
+  // const x = RECT_WIDTH + Math.floor(n.time * RECT_WIDTH * this.state.rectTime) + this.offsetFirst
+  // const y = Math.floor(canvas.height - ((n.midiNumber - this.props.midiOffset) * RECT_HEIGHT + RECT_SPACE * (n.midiNumber - this.props.midiOffset))) - (RECT_HEIGHT + RECT_SPACE)
+  // const width = Math.floor(n.duration * RECT_WIDTH * this.state.rectTime)
+  // c.fillStyle = n.color ? n.color : this.state.channelColor
+  // c.clearRect(x, y, width, RECT_HEIGHT);
+  // c.fillRect(x, y, width, RECT_HEIGHT);
+
   const renderNotes = useCallback((joinedEvents: ChannelRenderEvent[],
     canvasElement: HTMLCanvasElement, canvasCtx: CanvasRenderingContext2D) => {
     const { notesListWidth } = canvasSettings.current
     joinedEvents.forEach((event, i) => {
+      console.log(RECT_WIDTH, event?.time, canvasTimeUnit, notesListWidth, 'xvariables')
       const x =
-        RECT_WIDTH +
-        Math.floor(compositionDuration.current * RECT_WIDTH * canvasTimeUnit) +
-        notesListWidth
+        Math.floor(event.time * RECT_WIDTH * canvasTimeUnit) +
+        notesListWidth 
       const y =
         Math.floor(
           canvasElement.height -
           ((event.midiNumber - MIDI_OFFSET) * rectangleHeight +
             RECT_SPACE * (event.midiNumber - MIDI_OFFSET))
-        ) -
-        (rectangleHeight + RECT_SPACE)
+        ) 
       const width = Math.floor(
         event.duration * RECT_WIDTH * canvasTimeUnit
       )
@@ -319,12 +323,12 @@ function NotesGridRenderer(): INotesGridRenderer {
 
   const stopRecordingBar = useCallback(
     (pause) => {
-      const { currentTime } = gridRecording
+      const { currentTime } = gridNotes
       recordingTimers.current.forEach((t) => clearTimeout(t))
       if (!pause) setLastRectangle(0)
       drawInitial(currentTime)
     },
-    [drawInitial, gridRecording]
+    [drawInitial, gridNotes]
   )
 
   const resetRec = useCallback(() => {
@@ -333,7 +337,7 @@ function NotesGridRenderer(): INotesGridRenderer {
 
   const resumeRec = useCallback(() => {
     let start = null
-    const { currentTime } = gridRecording
+    const { currentTime } = gridNotes
     for (let i = 0; i < recordingTimesRemained.length; i++) {
       if (recordingTimesRemained[i] < currentTime) continue
       if (!start) start = recordingTimesRemained[i]
@@ -342,7 +346,7 @@ function NotesGridRenderer(): INotesGridRenderer {
       }, Math.floor((recordingTimesRemained[i] - start) * 1000))
       recordingTimers.current.push(t)
     }
-  }, [drawInitial, gridRecording, recordingTimesRemained])
+  }, [drawInitial, gridNotes, recordingTimesRemained])
 
   useEffect(() => {
     const { PLAYING, RECORDING, RECORDING_RESET } = controllerState
@@ -364,16 +368,7 @@ function NotesGridRenderer(): INotesGridRenderer {
       stopRecordingBar(false)
       resetRec()
     }
-  }, [
-    controllerState,
-    renderPlay,
-    resumeRec,
-    showRecordingBar,
-    stopPlayRender,
-    stopRecordingBar,
-    resetRec,
-    setControllerState,
-  ])
+  }, [controllerState, renderPlay, resumeRec, showRecordingBar, stopPlayRender, stopRecordingBar, resetRec, setControllerState])
 
   useEffect(() => {
     setCanvasTimeUnit(1 / noteDuration)

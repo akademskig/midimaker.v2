@@ -1,4 +1,3 @@
-import { ReactElement } from 'react'
 import { Player } from 'soundfont-player'
 
 export enum SoundfontType {
@@ -9,13 +8,6 @@ export enum SoundfontFormat {
   mp3 = 'mp3',
   ogg = 'ogg',
 }
-
-export type SoundfontProviderProps = {
-  instrumentName: string;
-  format: SoundfontFormat;
-  soundfont: SoundfontType;
-  children: ReactElement;
-};
 
 export interface ICachedInstruments {
   [string: string]: Player;
