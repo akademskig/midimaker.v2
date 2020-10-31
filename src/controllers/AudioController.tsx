@@ -1,8 +1,8 @@
 import { useCallback, useContext } from 'react'
 import { isEqual } from 'lodash'
-import { PlayEvent, TChannel } from '../../providers/SoundfontProvider/SoundFontProvider.types'
-import { SoundfontProviderContext } from '../../providers/SoundfontProvider/SoundfontProvider'
-import { AudioStateProviderContext } from '../../providers/AudioStateProvider/AudioStateProvider'
+import { PlayEvent, TChannel } from '../providers/SoundfontProvider/SoundFontProvider.types'
+import { SoundfontProviderContext } from '../providers/SoundfontProvider/SoundfontProvider'
+import { AudioStateProviderContext } from '../providers/AudioStateProvider/AudioStateProvider'
 
 class Channel implements TChannel {
     instrumentName: string

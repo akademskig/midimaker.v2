@@ -1,12 +1,12 @@
 import { useCallback, useContext, useRef } from 'react'
 import { uniq, flatMap } from 'lodash'
-import { SoundfontProviderContext } from '../../providers/SoundfontProvider/SoundfontProvider'
+import { SoundfontProviderContext } from '../providers/SoundfontProvider/SoundfontProvider'
 import {
   PlayEvent,
   TChannel,
   PlayChannelEvent
-} from '../../providers/SoundfontProvider/SoundFontProvider.types'
-import { WindowExtended } from '../../globals'
+} from '../providers/SoundfontProvider/SoundFontProvider.types'
+import { WindowExtended } from '../globals'
 
 
 

@@ -3,7 +3,6 @@ import { MidiNumbers } from 'react-piano'
 import { range } from 'lodash'
 import { Note, TChannel } from '../SoundfontProvider/SoundFontProvider.types'
 import { TNoteRange, TRecordingGrid } from './AudioStateProvider.types'
-import NotesGrid from '../../components/NotesGrid/NotesGrid'
 
 const initialNoteRange = {
     first: 43,
@@ -37,12 +36,12 @@ interface IAudioStateProviderContext {
 }
 
 interface IAudioStateProviderProps { 
-    children: ReactElement
+    children: ReactElement | ReactElement[]
 }
 const initialChannel = {
     instrumentName: 'acoustic_grand_piano',
     notes: [],
-    color: 'yellow',
+    color: initialChannelColor,
     duration: 0
 }
 const initialControllerState = {

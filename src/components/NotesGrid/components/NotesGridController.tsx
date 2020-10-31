@@ -1,9 +1,9 @@
 import { MouseEvent, useCallback } from 'react'
-import useAudioPlayer from '../../controllers/AudioPlayer'
+import useAudioPlayer from '../../../controllers/AudioPlayer'
 import { useNotesGridRenderer } from './NotesGridRenderer'
 import { TChannel } from '../../../providers/SoundfontProvider/SoundFontProvider.types'
 import { TRecordingGrid, TSetRecordingGrid } from '../../../providers/AudioStateProvider/AudioStateProvider.types'
-import { useAudioController } from '../../controllers/AudioController'
+import { useAudioController } from '../../../controllers/AudioController'
 
 export interface INotesGridControllerProps {
   canvasTimeUnit: number,

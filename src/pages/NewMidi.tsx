@@ -7,8 +7,9 @@ const NewMidi = () => {
     return (
         <SoundfontProvider>
             <AudioStateProvider>
-            <NotesGrid/>
-           </AudioStateProvider>
+                <div>alo!</div>
+                <NotesGrid />
+            </AudioStateProvider>
         </SoundfontProvider>
     )
 }

@@ -174,7 +174,7 @@ function NotesGridRenderer(): INotesGridRenderer {
     notes.filter((note: Note, i: number): void => {
       for (let j = 0; j < xLength; j++) {
         const x = j * RECT_WIDTH + notesListWidth + RECT_SPACE * j
-        const y = i * rectangleHeight + RECT_SPACE * i
+        const y = (rectangleHeight + RECT_SPACE ) * i
         if (j === 0) {
           canvasCtx.fillStyle = '#fff' //fontColor
           canvasCtx.font = `${fontSize.current}px Comic Sans MS`
