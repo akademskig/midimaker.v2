@@ -10,8 +10,10 @@ import {
 
 import { flatMap } from 'lodash'
 
-import { RECT_WIDTH, RECT_SPACE, RECT_TIME, RECORDING_BAR_COLOR, BAR_COLOR, 
-  BAR_WIDTH, REC_TIME, RECT_COLOR, CANVAS_BACKGROUND, MIDI_OFFSET } from '../constants'
+import {
+  RECT_WIDTH, RECT_SPACE, RECT_TIME, RECORDING_BAR_COLOR, BAR_COLOR,
+  BAR_WIDTH, REC_TIME, RECT_COLOR, CANVAS_BACKGROUND, MIDI_OFFSET
+} from '../constants'
 import { ICoordinates } from '../NotesGrid.types'
 import { ChannelRenderEvent, Note, PlayEvent, TChannel } from '../../../providers/SoundfontProvider/SoundFontProvider.types'
 import { AudioStateProviderContext } from '../../../providers/AudioStateProvider/AudioStateProvider'
@@ -52,14 +54,14 @@ export interface INotesGridRenderer {
   findNoteByGridCoordinates: (event: React.MouseEvent) => PlayEvent | null
 }
 
-let canvasBoxElement:HTMLDivElement
+let canvasBoxElement: HTMLDivElement
 let coordinatesMapLocal: ICoordinates[]
 function NotesGridRenderer(): INotesGridRenderer {
 
   const [recordingTimesRemained, setRecordingTimesRemained] =
     useState<Array<number>>([])
-    const [canvasTimeUnit, setCanvasTimeUnit] = useState(RECT_TIME)
-    const [lastRectangle, setLastRectangle] = useState(0)
+  const [canvasTimeUnit, setCanvasTimeUnit] = useState(RECT_TIME)
+  const [lastRectangle, setLastRectangle] = useState(0)
 
   const canvasRef = createRef<HTMLCanvasElement>()
   const canvasBoxRef = createRef<HTMLDivElement>()
@@ -73,9 +75,9 @@ function NotesGridRenderer(): INotesGridRenderer {
     notesListWidth: 0,
   })
   const { channels, noteDuration, channelColor, notes, gridNotes, controllerState, setControllerState } = useContext(AudioStateProviderContext)
-  
-  useEffect(()=>{
-    if(canvasBoxRef.current){
+
+  useEffect(() => {
+    if (canvasBoxRef.current) {
       canvasBoxElement = canvasBoxRef.current
     }
   }, [canvasBoxRef, canvasRef])
@@ -98,7 +100,7 @@ function NotesGridRenderer(): INotesGridRenderer {
         y >= i.y &&
         y <= i.y + rectangleHeight
     )
-    if(!rectangle){
+    if (!rectangle) {
       return null
     }
     if (rectangle.x >= canvasBoxElement.getBoundingClientRect().top) {
@@ -109,11 +111,11 @@ function NotesGridRenderer(): INotesGridRenderer {
 
     const note = {
       midiNumber: rectangle.midiNumber,
-      time: (rectangle.x - RECT_WIDTH - fontSize.current) / RECT_WIDTH / canvasTimeUnit,
+      time: (rectangle.x - RECT_WIDTH - (fontSize.current + 5) + RECT_SPACE) / RECT_WIDTH / canvasTimeUnit,
       duration: 1 / canvasTimeUnit,
     }
     return note
-}, [canvasTimeUnit])
+  }, [canvasTimeUnit])
 
 
   const canvasSetup = useCallback((timer?: number) => {
@@ -149,7 +151,7 @@ function NotesGridRenderer(): INotesGridRenderer {
       (canvasElement.height - RECT_SPACE * notes.length) / notes.length
     fontSize.current = rectangleHeight * 0.6
 
-    canvasSettings.current.notesListWidth = (fontSize.current + 5)
+    canvasSettings.current.notesListWidth = fontSize.current + 5
     return {
       canvasBoxElement,
       canvasElement,
@@ -174,7 +176,7 @@ function NotesGridRenderer(): INotesGridRenderer {
     notes.filter((note: Note, i: number): void => {
       for (let j = 0; j < xLength; j++) {
         const x = j * RECT_WIDTH + notesListWidth + RECT_SPACE * j
-        const y = (rectangleHeight + RECT_SPACE ) * i
+        const y = ((rectangleHeight + RECT_SPACE) * i) + RECT_SPACE
         if (j === 0) {
           canvasCtx.fillStyle = '#fff' //fontColor
           canvasCtx.font = `${fontSize.current}px Comic Sans MS`
@@ -184,14 +186,14 @@ function NotesGridRenderer(): INotesGridRenderer {
             calculateFontYPosition(i)
           )
           canvasCtx.fillStyle = CANVAS_BACKGROUND
-          canvasCtx.fillRect(0, (calculateFontYPosition(i) + 6), RECT_WIDTH + notesListWidth, RECT_SPACE) // horizontal border
+          canvasCtx.fillRect(0, y - RECT_SPACE, RECT_WIDTH + notesListWidth, RECT_SPACE) // horizontal border
           canvasCtx.fillRect(RECT_WIDTH + notesListWidth, i * (rectangleHeight + RECT_SPACE), RECT_SPACE, rectangleHeight + RECT_SPACE) // vertical border
         } else {
           canvasCtx.fillStyle = RECT_COLOR
           canvasCtx.fillRect(x, y, RECT_WIDTH, rectangleHeight)
           canvasCtx.fillStyle = CANVAS_BACKGROUND
-          canvasCtx.fillRect(x + RECT_WIDTH + RECT_SPACE, y, RECT_SPACE, rectangleHeight) // fill vertical spaces
-          canvasCtx.fillRect(x, y + rectangleHeight + RECT_SPACE, RECT_WIDTH, RECT_SPACE) // fill horizontal spaces
+          canvasCtx.fillRect(x - RECT_SPACE, y, RECT_SPACE, rectangleHeight) // fill vertical spaces
+          canvasCtx.fillRect(x,  y - RECT_SPACE, RECT_WIDTH + RECT_SPACE, RECT_SPACE) // fill horizontal spaces
           coordinatesMapLocal = [...coordinatesMapLocal, { midiNumber: note.midiNumber, x, y }]
         }
       }
@@ -231,16 +233,14 @@ function NotesGridRenderer(): INotesGridRenderer {
     canvasElement: HTMLCanvasElement, canvasCtx: CanvasRenderingContext2D) => {
     const { notesListWidth } = canvasSettings.current
     joinedEvents.forEach((event, i) => {
-      console.log(RECT_WIDTH, event?.time, canvasTimeUnit, notesListWidth, 'xvariables')
       const x =
-        Math.floor(event.time * RECT_WIDTH * canvasTimeUnit) +
-        notesListWidth 
+      event.time * RECT_WIDTH * canvasTimeUnit+
+        notesListWidth
       const y =
-        Math.floor(
           canvasElement.height -
-          ((event.midiNumber - MIDI_OFFSET) * rectangleHeight +
-            RECT_SPACE * (event.midiNumber - MIDI_OFFSET))
-        ) 
+          ((event.midiNumber - MIDI_OFFSET ) * rectangleHeight +
+            RECT_SPACE * (event.midiNumber - MIDI_OFFSET)) + RECT_SPACE
+        
       const width = Math.floor(
         event.duration * RECT_WIDTH * canvasTimeUnit
       )
@@ -387,7 +387,7 @@ function NotesGridRenderer(): INotesGridRenderer {
   }
 }
 
-function useNotesGridRenderer(): INotesGridRenderer{
+function useNotesGridRenderer(): INotesGridRenderer {
   return NotesGridRenderer()
 }
 
